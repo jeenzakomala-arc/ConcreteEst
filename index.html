@@ -1,0 +1,239 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>ConcreteEst – Kalkulator Material Beton</title>
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+    :root {
+      --bg: #f4f6f9; --card: #ffffff; --border: #e0e4eb;
+      --primary: #1e6fd9; --primary-light: #e8f0fc;
+      --text: #1a2332; --text2: #5a6880; --text3: #8f9bb3;
+      --success-bg: #e6f7ee; --success: #1a7a45;
+      --radius: 10px; --radius-sm: 6px;
+      --shadow: 0 2px 8px rgba(0,0,0,0.07);
+    }
+    body { font-family: 'Segoe UI', system-ui, sans-serif; background: var(--bg); color: var(--text); min-height: 100vh; padding: 0; }
+
+    header { background: var(--primary); color: white; padding: 1.1rem 2rem; display: flex; align-items: center; gap: 12px; box-shadow: 0 2px 10px rgba(30,111,217,0.18); }
+    header h1 { font-size: 1.3rem; font-weight: 700; letter-spacing: 0.02em; }
+    header span { font-size: 0.85rem; opacity: 0.8; }
+    .badge-header { background: rgba(255,255,255,0.2); border-radius: 20px; padding: 3px 12px; font-size: 0.75rem; font-weight: 600; margin-left: auto; }
+
+    .container { max-width: 860px; margin: 2rem auto; padding: 0 1.2rem 3rem; }
+
+    .card { background: var(--card); border: 1px solid var(--border); border-radius: var(--radius); padding: 1.4rem 1.6rem; margin-bottom: 1.2rem; box-shadow: var(--shadow); }
+    .card-title { font-size: 0.72rem; font-weight: 700; color: var(--text3); text-transform: uppercase; letter-spacing: 0.08em; margin-bottom: 1rem; }
+
+    .grid2 { display: grid; grid-template-columns: 1fr 1fr; gap: 14px; }
+    .grid3 { display: grid; grid-template-columns: repeat(3,1fr); gap: 12px; }
+    .grid4 { display: grid; grid-template-columns: repeat(4,1fr); gap: 10px; }
+    @media(max-width:600px){ .grid2,.grid3,.grid4{ grid-template-columns:1fr 1fr; } }
+    @media(max-width:400px){ .grid3,.grid4{ grid-template-columns:1fr; } }
+
+    .field { display: flex; flex-direction: column; gap: 5px; }
+    .field label { font-size: 0.78rem; color: var(--text2); font-weight: 500; }
+    input, select {
+      width: 100%; padding: 8px 10px; border: 1px solid var(--border); border-radius: var(--radius-sm);
+      font-size: 0.9rem; color: var(--text); background: #fff; transition: border-color .15s;
+      font-family: inherit;
+    }
+    input:focus, select:focus { outline: none; border-color: var(--primary); box-shadow: 0 0 0 3px var(--primary-light); }
+
+    .metric { background: var(--bg); border-radius: var(--radius-sm); padding: 0.85rem 1rem; }
+    .metric .mlabel { font-size: 0.72rem; color: var(--text2); margin-bottom: 3px; }
+    .metric .mval { font-size: 1.4rem; font-weight: 600; color: var(--text); line-height: 1.2; }
+    .metric .munit { font-size: 0.72rem; color: var(--text3); margin-top: 2px; }
+
+    .divider { border: none; border-top: 1px solid var(--border); margin: 1rem 0; }
+
+    .elemen-row { display: flex; gap: 8px; align-items: flex-end; margin-bottom: 10px; flex-wrap: wrap; }
+    .elemen-row .field { flex: 1; min-width: 80px; }
+    .elemen-row .field-sm { flex: 0 0 70px; }
+
+    .btn-add {
+      display: inline-flex; align-items: center; gap: 6px;
+      padding: 8px 16px; font-size: 0.85rem; border-radius: var(--radius-sm);
+      border: 1.5px dashed var(--primary); background: var(--primary-light);
+      color: var(--primary); cursor: pointer; font-weight: 600; transition: all .15s;
+    }
+    .btn-add:hover { background: var(--primary); color: white; }
+    .btn-del {
+      width: 34px; height: 36px; flex-shrink: 0; border: 1px solid var(--border);
+      border-radius: var(--radius-sm); background: white; color: var(--text3);
+      cursor: pointer; font-size: 1rem; display: flex; align-items: center; justify-content: center; transition: all .15s;
+    }
+    .btn-del:hover { background: #fff0f0; color: #c0392b; border-color: #f5c6c6; }
+
+    .empty-state { font-size: 0.83rem; color: var(--text3); padding: 0.5rem 0 1rem; font-style: italic; }
+
+    .harga-row { display: flex; align-items: center; gap: 10px; margin-bottom: 10px; }
+    .harga-row label { font-size: 0.82rem; color: var(--text2); min-width: 100px; font-weight: 500; }
+    .harga-row .rp { font-size: 0.82rem; color: var(--text2); }
+    .harga-row input { max-width: 160px; }
+
+    .total-box {
+      background: var(--success-bg); border-radius: var(--radius-sm); padding: 1rem 1.2rem;
+      display: flex; justify-content: space-between; align-items: center; margin-top: 14px;
+    }
+    .total-box .tlabel { font-size: 0.9rem; font-weight: 600; color: var(--success); }
+    .total-box .tval { font-size: 1.5rem; font-weight: 700; color: var(--success); }
+    .note { font-size: 0.73rem; color: var(--text3); margin-top: 8px; }
+
+    .badge-mutu { display: inline-block; font-size: 0.72rem; font-weight: 700; padding: 3px 10px; border-radius: 20px; background: var(--primary-light); color: var(--primary); }
+    .card-header { display: flex; align-items: center; justify-content: space-between; margin-bottom: 1rem; }
+    .card-header .card-title { margin-bottom: 0; }
+
+    footer { text-align: center; padding: 1.5rem; font-size: 0.75rem; color: var(--text3); border-top: 1px solid var(--border); background: white; }
+  </style>
+</head>
+<body>
+
+<header>
+  <svg width="28" height="28" viewBox="0 0 28 28" fill="none"><rect width="28" height="28" rx="7" fill="white" fill-opacity=".15"/><rect x="4" y="16" width="20" height="4" rx="2" fill="white"/><rect x="4" y="10" width="20" height="4" rx="2" fill="white" fill-opacity=".7"/><rect x="4" y="4" width="20" height="4" rx="2" fill="white" fill-opacity=".4"/></svg>
+  <div>
+    <h1>ConcreteEst</h1>
+    <span>Concrete Estimator – Kalkulator Kebutuhan Material Beton & Estimasi Biaya</span>
+  </div>
+  <div class="badge-header">SNI</div>
+</header>
+
+<div class="container">
+
+  <!-- ELEMEN BETON -->
+  <div class="card">
+    <p class="card-title">Elemen Beton</p>
+    <div id="elemen-list"></div>
+    <button class="btn-add" onclick="tambahElemen()">＋ Tambah Elemen</button>
+  </div>
+
+  <!-- MIX DESIGN -->
+  <div class="card">
+    <p class="card-title">Mix Design</p>
+    <div class="grid2">
+      <div class="field">
+        <label>Mutu Beton</label>
+        <select id="mutu" onchange="hitung()">
+          <option value="k175">K-175 &nbsp;(1 : 2 : 3)</option>
+          <option value="k225">K-225 &nbsp;(1 : 1,75 : 2,75)</option>
+          <option value="k250">K-250 &nbsp;(1 : 1,5 : 2,5)</option>
+          <option value="k300" selected>K-300 &nbsp;(1 : 1,25 : 2,5)</option>
+          <option value="k350">K-350 &nbsp;(1 : 1 : 2)</option>
+        </select>
+      </div>
+      <div class="field">
+        <label>Faktor Kehilangan (%)</label>
+        <input type="number" id="loss" value="5" min="0" max="30" step="1" oninput="hitung()" />
+      </div>
+    </div>
+    <p class="note" style="margin-top:8px">Rasio air-semen (fas) mengikuti standar SNI untuk masing-masing mutu beton.</p>
+  </div>
+
+  <!-- HASIL -->
+  <div class="card">
+    <div class="card-header">
+      <p class="card-title">Total Volume & Kebutuhan Material</p>
+      <span class="badge-mutu" id="badge-mutu">K-300</span>
+    </div>
+    <div class="grid4">
+      <div class="metric"><div class="mlabel">Total Volume</div><div class="mval" id="r-vol">0,00</div><div class="munit">m³</div></div>
+      <div class="metric"><div class="mlabel">+ Kehilangan</div><div class="mval" id="r-vol-loss">0,00</div><div class="munit">m³</div></div>
+      <div class="metric"><div class="mlabel">Semen</div><div class="mval" id="r-semen">0</div><div class="munit">zak (50 kg)</div></div>
+      <div class="metric"><div class="mlabel">Air</div><div class="mval" id="r-air">0</div><div class="munit">liter</div></div>
+    </div>
+    <hr class="divider">
+    <div class="grid3">
+      <div class="metric"><div class="mlabel">Agregat Halus (Pasir)</div><div class="mval" id="r-pasir">0,00</div><div class="munit">m³</div></div>
+      <div class="metric"><div class="mlabel">Agregat Kasar (Kerikil)</div><div class="mval" id="r-kerikil">0,00</div><div class="munit">m³</div></div>
+      <div class="metric"><div class="mlabel">Semen per m³</div><div class="mval" id="r-sm3">368</div><div class="munit">kg/m³</div></div>
+    </div>
+  </div>
+
+  <!-- HARGA -->
+  <div class="card">
+    <p class="card-title">Harga Satuan Material</p>
+    <div class="harga-row"><label>Semen (per zak)</label><span class="rp">Rp</span><input type="number" id="h-semen" value="75000" min="0" step="1000" oninput="hitung()"></div>
+    <div class="harga-row"><label>Pasir (per m³)</label><span class="rp">Rp</span><input type="number" id="h-pasir" value="250000" min="0" step="1000" oninput="hitung()"></div>
+    <div class="harga-row"><label>Kerikil (per m³)</label><span class="rp">Rp</span><input type="number" id="h-kerikil" value="320000" min="0" step="1000" oninput="hitung()"></div>
+    <div class="total-box">
+      <span class="tlabel">Estimasi Total Biaya Material</span>
+      <span class="tval" id="r-biaya">Rp 0</span>
+    </div>
+    <p class="note">* Belum termasuk upah pekerja, sewa alat, dan pajak.</p>
+  </div>
+
+</div>
+
+<footer>ConcreteEst &copy; 2026 &nbsp;|&nbsp; Jeenza Yoan Komala &nbsp;|&nbsp; Program Studi Teknik Sipil – Universitas Wijayakusuma Purwokerto</footer>
+
+<script>
+const mix = {
+  k175:{label:'K-175',s:1,p:2,   k:3,   sm3:276,fas:0.57},
+  k225:{label:'K-225',s:1,p:1.75,k:2.75,sm3:310,fas:0.52},
+  k250:{label:'K-250',s:1,p:1.5, k:2.5, sm3:336,fas:0.48},
+  k300:{label:'K-300',s:1,p:1.25,k:2.5, sm3:368,fas:0.45},
+  k350:{label:'K-350',s:1,p:1,   k:2,   sm3:400,fas:0.42},
+};
+const tipe = [
+  {label:'Pelat (slab)',     d:['Panjang (m)','Lebar (m)','Tebal (m)'],   fn:d=>d[0]*d[1]*d[2]},
+  {label:'Balok (beam)',     d:['Panjang (m)','Lebar (m)','Tinggi (m)'],  fn:d=>d[0]*d[1]*d[2]},
+  {label:'Kolom (column)',   d:['Tinggi (m)','Lebar (m)','Tebal (m)'],    fn:d=>d[0]*d[1]*d[2]},
+  {label:'Pondasi (footing)',d:['Panjang (m)','Lebar (m)','Tebal (m)'],   fn:d=>d[0]*d[1]*d[2]},
+];
+let list=[], ctr=0;
+
+function tambahElemen(){
+  list.push({id:++ctr,tipe:0,d:[1,1,0.2],qty:1});
+  render(); hitung();
+}
+function hapus(id){ list=list.filter(x=>x.id!==id); render(); hitung(); }
+function setTipe(id,v){ const e=list.find(x=>x.id===id); e.tipe=+v; e.d=[1,1,0.2]; render(); hitung(); }
+function setD(id,i,v){ list.find(x=>x.id===id).d[i]=parseFloat(v)||0; hitung(); }
+function setQty(id,v){ list.find(x=>x.id===id).qty=parseInt(v)||1; hitung(); }
+
+function render(){
+  const el=document.getElementById('elemen-list');
+  if(!list.length){ el.innerHTML='<p class="empty-state">Belum ada elemen. Klik "+ Tambah Elemen" untuk mulai.</p>'; return; }
+  el.innerHTML=list.map(e=>{
+    const t=tipe[e.tipe];
+    return `<div class="elemen-row">
+      <div class="field" style="min-width:140px;max-width:160px">
+        <label>Tipe Elemen</label>
+        <select onchange="setTipe(${e.id},this.value)">${tipe.map((tp,i)=>`<option value="${i}"${i==e.tipe?' selected':''}>${tp.label}</option>`).join('')}</select>
+      </div>
+      ${t.d.map((dl,i)=>`<div class="field" style="min-width:78px"><label>${dl}</label><input type="number" value="${e.d[i]}" min="0" step="0.01" oninput="setD(${e.id},${i},this.value)"></div>`).join('')}
+      <div class="field field-sm"><label>Jumlah</label><input type="number" value="${e.qty}" min="1" step="1" oninput="setQty(${e.id},this.value)"></div>
+      <button class="btn-del" onclick="hapus(${e.id})" title="Hapus">✕</button>
+    </div>`;
+  }).join('');
+}
+
+function fmt(n,d=2){ return n.toLocaleString('id-ID',{minimumFractionDigits:d,maximumFractionDigits:d}); }
+
+function hitung(){
+  const m=mix[document.getElementById('mutu').value];
+  const loss=(parseFloat(document.getElementById('loss').value)||0)/100;
+  document.getElementById('badge-mutu').textContent=m.label;
+  let vol=0;
+  list.forEach(e=>{ vol+=tipe[e.tipe].fn(e.d)*e.qty; });
+  const volL=vol*(1+loss);
+  const smKg=m.sm3*volL, smZak=Math.ceil(smKg/50), air=Math.round(m.sm3*m.fas*volL);
+  const tot=m.s+m.p+m.k, pasir=(m.p/tot)*volL, kerikil=(m.k/tot)*volL;
+  document.getElementById('r-vol').textContent=fmt(vol);
+  document.getElementById('r-vol-loss').textContent=fmt(volL);
+  document.getElementById('r-semen').textContent=fmt(smZak,0);
+  document.getElementById('r-air').textContent=fmt(air,0);
+  document.getElementById('r-pasir').textContent=fmt(pasir);
+  document.getElementById('r-kerikil').textContent=fmt(kerikil);
+  document.getElementById('r-sm3').textContent=fmt(m.sm3,0);
+  const hs=parseFloat(document.getElementById('h-semen').value)||0;
+  const hp=parseFloat(document.getElementById('h-pasir').value)||0;
+  const hk=parseFloat(document.getElementById('h-kerikil').value)||0;
+  document.getElementById('r-biaya').textContent='Rp '+fmt(smZak*hs+pasir*hp+kerikil*hk,0);
+}
+
+tambahElemen();
+</script>
+</body>
+</html>
